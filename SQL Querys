@@ -1,0 +1,56 @@
+--Data from https://ourworldindata.org/covid-deaths
+-- Sample querys extracting data.
+
+SELECT location, date, total_cases, new_cases, total_deaths,population
+FROM `shmani.COVID.Deaths`
+ORDER BY 1,2
+
+-- Looking at Total Cases VS Total Deaths
+--Shows likilhood of dying from COVID
+SELECT location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS Death_Percentage
+FROM `shmani.COVID.Deaths`
+WHERE location = "United States"
+ORDER BY 1,2
+
+--Total cases VS population
+SELECT location, date, total_cases, population, (total_cases/population)*100 AS COVID
+FROM `shmani.COVID.Deaths`
+WHERE location = "United States"
+ORDER BY 1,2
+
+--Country with highest infection rates compared to population
+SELECT location, MAX(total_cases) AS HIGHEST_Infection_Count, population, MAX((total_cases/population))*100 AS HIGHEST_INFECTION
+FROM `shmani.COVID.Deaths`
+--WHERE location = "United States"
+GROUP BY location, population
+ORDER BY HIGHEST_INFECTION DESC 
+
+--Showing the countries with the highest death count per population
+SELECT location, MAX(cast(total_deaths AS int)) AS totaldeathcount
+FROM `shmani.COVID.Deaths`
+Where continent IS NOT null
+GROUP BY location
+ORDER BY totaldeathcount DESC
+
+-- Continent
+SELECT location, MAX(cast(total_deaths AS int)) AS totaldeathcount
+FROM `shmani.COVID.Deaths`
+Where continent is null
+GROUP BY location
+ORDER BY totaldeathcount DESC
+
+--Global numbers
+SELECT date, SUM(new_cases), SUM(cast(new_deaths AS int)), SUM(new_deaths)/SUM(new_cases)*100--total_cases, total_deaths, (total_deaths/total_cases)*100 AS Death_Percentage
+FROM `shmani.COVID.Deaths`
+--WHERE location = "United States"
+Where continent is not null
+GROUP BY date
+ORDER BY 1,2
+
+--JOINS
+SELECT 'shmani.COVID.Deaths'.continent, 'shmani.COVID.Deaths'. location, 'shmani.COVID.Deaths'.date, 'shmani.COVID.Deaths'.population,`shmani.COVID.Vaccinations`.new_vaccinations
+FROM `shmani.COVID.Deaths`
+JOIN `shmani.COVID.Vaccinations` on `shmani.COVID.Deaths`.location = `shmani.COVID.Vaccinations`.location
+    AND `shmani.COVID.Deaths`.date = 'shmani.COVID.Vaccinations'.date
+Where continent is not null
+ORDER BY 1,2
